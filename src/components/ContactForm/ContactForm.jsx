@@ -7,19 +7,24 @@ import {
     InputLabel,
 } from './ContactForm.styled';
 import { nanoid } from 'nanoid';
+import { useDispatch, useSelector } from 'react-redux';
+import { Notify } from 'notiflix';
+import { addContactAction } from 'redux/contact/slice';
 
-const ContactForm = ({ addContactData }) => {
+const ContactForm = () => {
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
+    const { contacts } = useSelector(state => state.contacts);
+    const dispatch = useDispatch();
 
     const addContact = e => {
         e.preventDefault();
-        const newContact = {
-            name,
-            number,
-            id: nanoid(),
-        };
-        addContactData(newContact, { name, number });
+        const isTrue = contacts.some(contact => name === contact.name);
+        if (isTrue) {
+            Notify.failure(`${name} is already in contacts`);
+            return;
+        }
+        dispatch(addContactAction({ name, number, id: nanoid() }));
         setName('');
         setNumber('');
     };
